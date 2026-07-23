@@ -142,3 +142,30 @@ https://github.com/mahnoorjabbar719
 - QR Code Support
 - Online Book Reservation
 - Dark Mode
+## 📸 Screenshots
+
+### Home Page
+
+(Add Screenshot)
+
+### Admin Dashboard
+
+(Add Screenshot)
+
+### Student Dashboard
+
+(Add Screenshot)
+
+### Reports
+
+(Add Screenshot)
+## 🌐 Live Demo
+
+Frontend:
+Coming Soon
+
+Backend API:
+Coming Soon
+## 📄 License
+
+This project is developed for educational purposes.
