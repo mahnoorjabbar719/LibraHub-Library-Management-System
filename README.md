@@ -142,30 +142,25 @@ https://github.com/mahnoorjabbar719
 - QR Code Support
 - Online Book Reservation
 - Dark Mode
-## 📸 Screenshots
+# LibraHub Library Management System
 
-### Home Page
-
-(Add Screenshot)
-
-### Admin Dashboard
-
-(Add Screenshot)
-
-### Student Dashboard
-
-(Add Screenshot)
-
-### Reports
-
-(Add Screenshot)
-## 🌐 Live Demo
+## Live Demo
 
 Frontend:
-Coming Soon
+https://your-vercel-link.vercel.app
 
 Backend API:
-Coming Soon
-## 📄 License
+https://your-render-link.onrender.com
+
+## Technologies
+
+- React
+- Node.js
+- Express
+- MongoDB Atlas
+- Cloudinary
+- JWT Authentication
+- Tailwind CSS
+
 
 This project is developed for educational purposes.
