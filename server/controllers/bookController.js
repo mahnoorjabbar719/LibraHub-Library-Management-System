@@ -1,10 +1,35 @@
+import fs from "fs/promises";
 import Book from "../models/Book.js";
+import cloudinary from "../config/cloudinary.js";
+const removeLocalFile = async (filePath) => {
+  if (!filePath) return;
 
-// =======================
-// Add New Book
-// =======================
+  try {
+    await fs.unlink(filePath);
+  } catch (error) {
+    console.error("Temporary file removal error:", error.message);
+  }
+};
+
+const uploadCoverToCloudinary = async (filePath) => {
+  return cloudinary.uploader.upload(filePath, {
+    folder: "librahub/books",
+    resource_type: "image",
+    transformation: [
+      {
+        width: 800,
+        height: 1100,
+        crop: "limit",
+        quality: "auto",
+        fetch_format: "auto",
+      },
+    ],
+  });
+};
 
 export const addBook = async (req, res) => {
+  let uploadedCover = null;
+
   try {
     const {
       title,
@@ -16,7 +41,6 @@ export const addBook = async (req, res) => {
       description,
     } = req.body;
 
-    // Check required fields
     if (
       !title?.trim() ||
       !author?.trim() ||
@@ -36,7 +60,6 @@ export const addBook = async (req, res) => {
     const totalQuantity = Number(quantity);
     const totalAvailableCopies = Number(availableCopies);
 
-    // Validate numbers
     if (Number.isNaN(totalQuantity) || totalQuantity < 1) {
       return res.status(400).json({
         success: false,
@@ -51,12 +74,10 @@ export const addBook = async (req, res) => {
     ) {
       return res.status(400).json({
         success: false,
-        message:
-          "Available copies must be between 0 and total quantity",
+        message: "Available copies must be between 0 and total quantity",
       });
     }
 
-    // Check if ISBN already exists
     const existingBook = await Book.findOne({
       isbn: isbn.trim(),
     });
@@ -68,12 +89,16 @@ export const addBook = async (req, res) => {
       });
     }
 
-    // Save uploaded cover path
-    const coverImage = req.file
-      ? `/uploads/books/${req.file.filename}`
-      : "";
+    let coverImage = "";
+    let coverImagePublicId = "";
 
-    // Create Book
+    if (req.file) {
+      uploadedCover = await uploadCoverToCloudinary(req.file.path);
+
+      coverImage = uploadedCover.secure_url;
+      coverImagePublicId = uploadedCover.public_id;
+    }
+
     const book = await Book.create({
       title: title.trim(),
       author: author.trim(),
@@ -83,15 +108,28 @@ export const addBook = async (req, res) => {
       availableCopies: totalAvailableCopies,
       description: description?.trim() || "",
       coverImage,
+      coverImagePublicId,
     });
 
-    res.status(201).json({
+    return res.status(201).json({
       success: true,
       message: "Book Added Successfully",
       book,
     });
   } catch (error) {
     console.error("Add book error:", error);
+
+    // Cloudinary par upload ho gayi lekin database save fail hua
+    if (uploadedCover?.public_id) {
+      try {
+        await cloudinary.uploader.destroy(uploadedCover.public_id);
+      } catch (cloudinaryError) {
+        console.error(
+          "Cloudinary cleanup error:",
+          cloudinaryError.message
+        );
+      }
+    }
 
     if (error.code === 11000) {
       return res.status(400).json({
@@ -100,10 +138,12 @@ export const addBook = async (req, res) => {
       });
     }
 
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
-      message: "Server Error",
+      message: error.message || "Server Error",
     });
+  } finally {
+    await removeLocalFile(req.file?.path);
   }
 };
 
@@ -175,6 +215,8 @@ export const getSingleBook = async (req, res) => {
 // =======================
 
 export const updateBook = async (req, res) => {
+  let newUploadedCover = null;
+
   try {
     const { id } = req.params;
 
@@ -259,10 +301,7 @@ export const updateBook = async (req, res) => {
     if (quantity !== undefined && quantity !== "") {
       updatedQuantity = Number(quantity);
 
-      if (
-        Number.isNaN(updatedQuantity) ||
-        updatedQuantity < 1
-      ) {
+      if (Number.isNaN(updatedQuantity) || updatedQuantity < 1) {
         return res.status(400).json({
           success: false,
           message: "Quantity must be at least 1",
@@ -270,10 +309,7 @@ export const updateBook = async (req, res) => {
       }
     }
 
-    if (
-      availableCopies !== undefined &&
-      availableCopies !== ""
-    ) {
+    if (availableCopies !== undefined && availableCopies !== "") {
       updatedAvailableCopies = Number(availableCopies);
 
       if (
@@ -282,8 +318,7 @@ export const updateBook = async (req, res) => {
       ) {
         return res.status(400).json({
           success: false,
-          message:
-            "Available copies cannot be less than 0",
+          message: "Available copies cannot be less than 0",
         });
       }
     }
@@ -303,21 +338,54 @@ export const updateBook = async (req, res) => {
       book.description = description.trim();
     }
 
-    // New image uploaded ho to cover update hoga
-    // New image na ho to old cover safe rahega
+    const oldPublicId = book.coverImagePublicId;
+
     if (req.file) {
-      book.coverImage = `/uploads/books/${req.file.filename}`;
+      newUploadedCover = await uploadCoverToCloudinary(req.file.path);
+
+      book.coverImage = newUploadedCover.secure_url;
+      book.coverImagePublicId = newUploadedCover.public_id;
     }
 
     await book.save();
 
-    res.status(200).json({
+    // New image successfully save hone ke baad old Cloudinary image delete
+    if (
+      req.file &&
+      oldPublicId &&
+      oldPublicId !== book.coverImagePublicId
+    ) {
+      try {
+        await cloudinary.uploader.destroy(oldPublicId);
+      } catch (cloudinaryError) {
+        console.error(
+          "Old Cloudinary image deletion error:",
+          cloudinaryError.message
+        );
+      }
+    }
+
+    return res.status(200).json({
       success: true,
       message: "Book Updated Successfully",
       book,
     });
   } catch (error) {
     console.error("Update book error:", error);
+
+    // New image uploaded but database update failed
+    if (newUploadedCover?.public_id) {
+      try {
+        await cloudinary.uploader.destroy(
+          newUploadedCover.public_id
+        );
+      } catch (cloudinaryError) {
+        console.error(
+          "New Cloudinary image cleanup error:",
+          cloudinaryError.message
+        );
+      }
+    }
 
     if (error.name === "CastError") {
       return res.status(400).json({
@@ -333,10 +401,12 @@ export const updateBook = async (req, res) => {
       });
     }
 
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
-      message: "Server Error",
+      message: error.message || "Server Error",
     });
+  } finally {
+    await removeLocalFile(req.file?.path);
   }
 };
 
@@ -357,9 +427,22 @@ export const deleteBook = async (req, res) => {
       });
     }
 
+    if (book.coverImagePublicId) {
+      try {
+        await cloudinary.uploader.destroy(
+          book.coverImagePublicId
+        );
+      } catch (cloudinaryError) {
+        console.error(
+          "Cloudinary delete error:",
+          cloudinaryError.message
+        );
+      }
+    }
+
     await Book.findByIdAndDelete(id);
 
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
       message: "Book Deleted Successfully",
     });
@@ -373,7 +456,7 @@ export const deleteBook = async (req, res) => {
       });
     }
 
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: "Server Error",
     });

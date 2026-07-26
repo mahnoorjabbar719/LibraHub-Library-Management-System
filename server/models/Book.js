@@ -44,6 +44,10 @@ const bookSchema = new mongoose.Schema(
   type: String,
   default: "",
 },
+coverImagePublicId: {
+  type: String,
+  default: "",
+},
   },
   {
     timestamps: true,
