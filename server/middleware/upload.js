@@ -14,6 +14,9 @@ const storage = multer.diskStorage({
     callback(null, uploadFolder);
   },
 
+
+
+
   filename: (req, file, callback) => {
     const originalName = path
       .parse(file.originalname)

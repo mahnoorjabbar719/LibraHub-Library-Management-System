@@ -11,6 +11,11 @@ export const adminDashboard = async (req, res) => {
     });
 
     const books = await Book.find();
+    const recentBorrows = await Borrow.find()
+  .populate("user", "name")
+  .populate("book", "title")
+  .sort({ createdAt: -1 })
+  .limit(3);
 
     const availableBooks = books.reduce(
       (total, book) => total + book.availableCopies,
@@ -24,6 +29,7 @@ export const adminDashboard = async (req, res) => {
         totalBooks,
         totalBorrowedBooks,
         availableBooks,
+        recentBorrows,
       },
     });
   } catch (error) {
@@ -32,6 +38,50 @@ export const adminDashboard = async (req, res) => {
     res.status(500).json({
       success: false,
       message: "Server Error",
+    });
+  }
+};
+export const publicDashboard = async (req, res) => {
+  try {
+    const totalBooks = await Book.countDocuments();
+
+    const totalStudents = await User.countDocuments({
+      role: "student",
+    });
+
+    const totalBorrowedBooks = await Borrow.countDocuments({
+      status: "Borrowed",
+    });
+
+    const books = await Book.find({}, "availableCopies");
+
+    const availableBooks = books.reduce(
+      (total, book) => total + Number(book.availableCopies || 0),
+      0
+    );
+
+    const recentBorrows = await Borrow.find()
+      .populate("user", "name")
+      .populate("book", "title")
+      .sort({ createdAt: -1 })
+      .limit(3);
+
+    return res.status(200).json({
+      success: true,
+      dashboard: {
+        totalBooks,
+        totalUsers: totalStudents,
+        totalBorrowedBooks,
+        availableBooks,
+        recentBorrows,
+      },
+    });
+  } catch (error) {
+    console.error("Public dashboard error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Unable to load library statistics",
     });
   }
 };

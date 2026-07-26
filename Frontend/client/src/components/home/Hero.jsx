@@ -1,17 +1,74 @@
 import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
 import {
   FiArrowRight,
   FiBookOpen,
   FiCheckCircle,
   FiPlayCircle,
+   FiStar,
 } from "react-icons/fi";
-
+import { getAllBooks } from "../../services/bookService";
+import { getPublicDashboard } from "../../services/dashboardService";
 const Hero = () => {
   const highlights = [
     "Manage books and users",
     "Track borrow and return records",
     "Role-based secure dashboards",
   ];
+  const [books, setBooks] = useState([]);
+const [loadingBooks, setLoadingBooks] = useState(true);
+
+const API_ROOT =
+  import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+
+const SERVER_ROOT = API_ROOT.replace(/\/api\/?$/, "");
+
+const getCoverUrl = (coverImage) => {
+  if (!coverImage) return "";
+
+  if (
+    coverImage.startsWith("http://") ||
+    coverImage.startsWith("https://")
+  ) {
+    return coverImage;
+  }
+
+  return `${SERVER_ROOT}${coverImage}`;
+};
+
+useEffect(() => {
+  const loadHeroData = async () => {
+    try {
+      const [booksData, dashboardData] = await Promise.all([
+        getAllBooks(),
+        getPublicDashboard(),
+      ]);
+
+      const booksWithCovers = (booksData.books || []).filter(
+        (book) => book.coverImage
+      );
+
+      setBooks(booksWithCovers.slice(0, 5));
+
+      if (dashboardData.success) {
+        setDashboard(dashboardData.dashboard);
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoadingBooks(false);
+    }
+  };
+
+  loadHeroData();
+}, []);
+const [dashboard, setDashboard] = useState({
+  totalBooks: 0,
+  totalUsers: 0,
+  totalBorrowedBooks: 0,
+  availableBooks: 0,
+  recentBorrows: [],
+});
 
   return (
     <section
@@ -97,11 +154,11 @@ const Hero = () => {
 
               <div className="mt-5 grid grid-cols-2 gap-4">
                 {[
-                  ["Total Books", "1,248"],
-                  ["Students", "856"],
-                  ["Borrowed", "320"],
-                  ["Available", "928"],
-                ].map(([label, value]) => (
+  ["Total Books", dashboard.totalBooks],
+  ["Students", dashboard.totalUsers],
+  ["Borrowed", dashboard.totalBorrowedBooks],
+  ["Available", dashboard.availableBooks],
+].map(([label, value]) => (
                   <div
                     key={label}
                     className="rounded-2xl border border-white/10 bg-white/[0.05] p-4"
@@ -133,42 +190,40 @@ const Hero = () => {
                 </div>
 
                 <div className="space-y-3">
-                  {[
-                    ["Mahnoor", "Clean Code", "Borrowed"],
-                    ["Ali", "Atomic Habits", "Returned"],
-                    ["Sara", "Deep Work", "Borrowed"],
-                  ].map(([name, book, status]) => (
-                    <div
-                      key={`${name}-${book}`}
-                      className="flex items-center justify-between rounded-xl bg-slate-950/40 px-3 py-3"
-                    >
-                      <div>
-                        <strong className="block text-sm text-white">
-                          {name}
-                        </strong>
+                  {dashboard.recentBorrows?.map((item) => (
+  <div
+    key={item._id}
+    className="flex items-center justify-between rounded-xl bg-slate-950/40 px-3 py-3"
+  >
+    <div>
+      <strong className="block text-sm text-white">
+        {item.user?.name}
+      </strong>
 
-                        <span className="text-xs text-slate-400">
-                          {book}
-                        </span>
-                      </div>
+      <span className="text-xs text-slate-400">
+        {item.book?.title}
+      </span>
+    </div>
 
-                      <span
-                        className={`rounded-full px-3 py-1 text-[11px] font-bold ${
-                          status === "Returned"
-                            ? "bg-emerald-400/10 text-emerald-300"
-                            : "bg-amber-400/10 text-amber-300"
-                        }`}
-                      >
-                        {status}
-                      </span>
+    <span
+      className={`rounded-full px-3 py-1 text-[11px] font-bold ${
+        item.status === "Returned"
+          ? "bg-emerald-400/10 text-emerald-300"
+          : "bg-amber-400/10 text-amber-300"
+      }`}
+    >
+      {item.status}
+    </span>
+  </div>
+))}
                     </div>
-                  ))}
+                 
                 </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
+     
     </section>
   );
 };

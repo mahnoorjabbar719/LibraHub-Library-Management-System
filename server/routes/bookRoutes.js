@@ -15,10 +15,8 @@ router.post(
   addBook
 );
 // Get All Books
-router.get("/", protect, getAllBooks);
-// Get Single Book
-router.get("/:id", protect, getSingleBook);
-// Update Book (Only Admin & Librarian)
+router.get("/", getAllBooks);
+router.get("/:id", getSingleBook);
 router.put(
   "/:id",
   protect,
