@@ -304,7 +304,4 @@ If you found this project helpful, don't forget to **Star ⭐ the repository**.
 
 ---
 
-# 📄 License
-
-This project is licensed under the **MIT License**.
 This project is developed for educational purposes.
