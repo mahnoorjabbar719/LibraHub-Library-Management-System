@@ -1,4 +1,6 @@
-import User from "../models/User.js";
+
+import sendEmail from "../utils/sendEmail.js";
+import welcomeEmailTemplate from "../utils/welcomeEmailTemplate.js";import User from "../models/User.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
@@ -53,11 +55,26 @@ export const registerUser = async (req, res) => {
 
    const createdUser = await User.findById(user._id).select("-password");
 
+// Send Welcome Email
+try {
+  await sendEmail({
+    to: createdUser.email,
+    subject: "🎉 Welcome to LibraHub!",
+    html: welcomeEmailTemplate(createdUser.name),
+    text: `Welcome ${createdUser.name}! Your LibraHub account has been created successfully.`,
+  });
+
+  console.log("✅ Welcome email sent.");
+} catch (emailError) {
+  console.error("❌ Email sending failed:", emailError.message);
+}
+
+// Response
 res.status(201).json({
   success: true,
   message: "User Registered Successfully",
   user: createdUser,
-    });
+});
   } catch (error) {
     console.error("REGISTER ERROR:", error);
     // console.log(error);

@@ -2,8 +2,9 @@ import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
 import morgan from "morgan";
+import crypto from "crypto";
 
-
+import { verifyEmailConnection } from "./utils/sendEmail.js";
 import connectDB from "./config/db.js";
 import authRoutes from "./routes/authRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
@@ -19,7 +20,9 @@ connectDB();
 
 // Use auth routes
 
-
+verifyEmailConnection().catch((error) => {
+  console.error("❌ Gmail connection failed:", error.message);
+});
 // Create Express app
 const app = express();
 app.use("/uploads", express.static("uploads"));
