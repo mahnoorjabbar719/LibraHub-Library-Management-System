@@ -5,6 +5,7 @@ import {
   FiLogOut,
   FiSearch,
   FiUser,
+  
 } from "react-icons/fi";
 import Swal from "sweetalert2";
 
@@ -106,7 +107,19 @@ const StudentSidebar = ({ closeSidebar, collapsed = false }) => {
           </NavLink>
         ))}
       </nav>
-
+     <NavLink
+  to="/student/digital-library"
+  className={({ isActive }) =>
+    `flex items-center gap-3 rounded-xl px-4 py-3 font-medium transition ${
+      isActive
+        ? "bg-emerald-500/15 text-emerald-400"
+        : "text-slate-300 hover:bg-slate-800 hover:text-white"
+    }`
+  }
+>
+  <FiBookOpen size={22} />
+  <span>Digital Library</span>
+</NavLink>
       {/* Logout */}
       <button
         type="button"

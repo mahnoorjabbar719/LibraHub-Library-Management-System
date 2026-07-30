@@ -7,6 +7,7 @@ import {
   FiRepeat,
   FiUser,
   FiUsers,
+  FiMonitor,
 } from "react-icons/fi";
 import Swal from "sweetalert2";
 
@@ -23,6 +24,11 @@ const menuItems = [
     path: "/admin/books",
     icon: FiBookOpen,
   },
+  {
+  label: "Digital Library",
+  path: "/admin/digital-library",
+  icon: FiMonitor,
+},
   {
     label: "Students",
     path: "/admin/students",

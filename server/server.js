@@ -1,9 +1,12 @@
 import express from "express";
 import dotenv from "dotenv";
+dotenv.config();
 import cors from "cors";
 import morgan from "morgan";
 import crypto from "crypto";
 
+import digitalBookRoutes from "./routes/digitalBookRoutes.js";
+console.log("Digital routes loaded");
 import { verifyEmailConnection } from "./utils/sendEmail.js";
 import connectDB from "./config/db.js";
 import authRoutes from "./routes/authRoutes.js";
@@ -13,7 +16,7 @@ import borrowRoutes from "./routes/borrowRoutes.js";
 import dashboardRoutes from "./routes/dashboardRoutes.js";
 import path from "path";
 // Load environment variables
-dotenv.config();
+
 
 // Connect to MongoDB
 connectDB();
@@ -41,6 +44,7 @@ app.use("/api/books", bookRoutes);
 app.use("/api/borrow", borrowRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 
+app.use("/api/digital-books", digitalBookRoutes);
 
 // Test Route
 app.get("/", (req, res) => {
@@ -49,6 +53,7 @@ app.get("/", (req, res) => {
     message: "📚 Library Management System API is Running Successfully!"
   });
 });
+
 
 // Server Port
 const PORT = process.env.PORT || 5000;

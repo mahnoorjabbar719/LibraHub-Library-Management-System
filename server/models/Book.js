@@ -48,6 +48,35 @@ coverImagePublicId: {
   type: String,
   default: "",
 },
+pdfUrl: {
+  type: String,
+  default: "",
+},
+
+pdfPublicId: {
+  type: String,
+  default: "",
+},
+
+allowDownload: {
+  type: Boolean,
+  default: true,
+},
+
+pages: {
+  type: Number,
+  default: 0,
+},
+
+language: {
+  type: String,
+  default: "English",
+},
+
+publisher: {
+  type: String,
+  default: "",
+},
   },
   {
     timestamps: true,
