@@ -93,7 +93,7 @@ const Dashboard = () => {
   }
 
   return (
-    <section className="space-y-7">
+   <section className="space-y-5 sm:space-y-7">
       <div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-center">
         <div>
           <span className="text-xs font-bold uppercase tracking-[0.2em] text-emerald-600">
@@ -112,13 +112,13 @@ const Dashboard = () => {
        <button
   type="button"
   onClick={() => navigate("/admin/books?add=true")}
-  className="rounded-xl bg-emerald-600 px-5 py-3 text-sm font-bold text-white shadow-lg shadow-emerald-600/20 transition hover:-translate-y-0.5 hover:bg-emerald-700"
+  className="w-full sm:w-auto rounded-xl bg-emerald-600 px-5 py-3 text-sm font-bold text-white shadow-lg shadow-emerald-600/20 transition hover:-translate-y-0.5 hover:bg-emerald-700"
 >
   + Add New Book
 </button>
       </div>
 
-      <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
         {cards.map(({ title, value, subtitle, icon: Icon, iconStyle }) => (
           <article
             key={title}
@@ -173,7 +173,7 @@ const Dashboard = () => {
               No borrow records found.
             </div>
           ) : (
-            <table className="min-w-full">
+            <table className="min-w-[850px] w-full">
               <thead className="bg-slate-50">
                 <tr>
                   {[

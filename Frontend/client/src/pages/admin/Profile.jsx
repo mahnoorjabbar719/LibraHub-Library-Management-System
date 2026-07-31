@@ -124,7 +124,7 @@ const Profile = () => {
             Account Settings
           </span>
 
-          <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-900">
+          <h1 className="mt-2 text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">
             Profile
           </h1>
 

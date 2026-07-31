@@ -43,7 +43,7 @@ const navigate = useNavigate();
   return (
     <article className="group flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:border-emerald-200 hover:shadow-xl hover:shadow-slate-200/60">
       {/* Cover section */}
-      <div className="relative flex h-64 items-center justify-center overflow-hidden bg-gradient-to-br from-slate-50 via-white to-emerald-50 p-4">
+      <div className="relative flex h-56 sm:h-64 items-center justify-center overflow-hidden bg-gradient-to-br from-slate-50 via-white to-emerald-50 p-4">
         <div className="h-full w-[170px] overflow-hidden rounded-lg bg-white shadow-md">
           {coverUrl ? (
             <img
@@ -96,7 +96,7 @@ const navigate = useNavigate();
 
         {book.category && (
           <div className="mt-3">
-            <span className="inline-flex max-w-full truncate rounded-full bg-violet-100 px-3 py-1 text-[11px] font-bold text-violet-700">
+            <span className="inline-flex max-w-full truncate rounded-full bg-violet-100 px-3 py-1 text-xs font-bold text-violet-700">
               {book.category}
             </span>
           </div>
@@ -125,7 +125,7 @@ const navigate = useNavigate();
   onClick={() =>
   navigate(`/${portal}/digital-library/${book._id}`)
 }
-  className="flex min-w-0 flex-1 items-center justify-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-2.5 text-xs font-bold text-white transition hover:bg-emerald-700"
+  className="flex min-w-0 flex-1 items-center justify-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-3 text-xs font-bold text-white transition hover:bg-emerald-700"
 >
   <FiBookOpen />
   Details
@@ -135,7 +135,7 @@ const navigate = useNavigate();
             type="button"
             onClick={downloadPdf}
             disabled={!pdfUrl || book.allowDownload === false}
-            className="flex min-w-0 flex-1 items-center justify-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-xs font-bold text-slate-700 transition hover:border-emerald-200 hover:bg-emerald-50 hover:text-emerald-700 disabled:cursor-not-allowed disabled:opacity-50"
+            className="flex min-w-0 flex-1 items-center justify-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-3 text-xs font-bold text-slate-700 transition hover:border-emerald-200 hover:bg-emerald-50 hover:text-emerald-700 disabled:cursor-not-allowed disabled:opacity-50"
           >
             <FiDownload />
             Download
@@ -147,7 +147,7 @@ const navigate = useNavigate();
     <button
       type="button"
       onClick={() => onEdit?.(book)}
-      className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-blue-50 text-blue-600 transition hover:bg-blue-100"
+      className="grid h-11 w-11 shrink-0 place-items-center rounded-lg bg-blue-50 text-blue-600 transition hover:bg-blue-100"
       aria-label={`Edit ${book.title}`}
       title="Edit book"
     >
@@ -158,7 +158,7 @@ const navigate = useNavigate();
       type="button"
       onClick={() => onDelete?.(book)}
       disabled={deletingId === book._id}
-      className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-red-50 text-red-600 transition hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-50"
+      className="grid h-11 w-11 shrink-0 place-items-center rounded-lg bg-red-50 text-red-600 transition hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-50"
       aria-label={`Delete ${book.title}`}
       title="Delete book"
     >

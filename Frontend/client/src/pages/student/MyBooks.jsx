@@ -163,7 +163,7 @@ const MyBooks = () => {
           Borrow History
         </span>
 
-        <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-900">
+        <h1 className="mt-2 text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">
           My Books
         </h1>
 
@@ -172,7 +172,7 @@ const MyBooks = () => {
         </p>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {cards.map(
           ({ title, value, subtitle, icon: Icon, iconStyle }) => (
             <article
@@ -222,7 +222,7 @@ const MyBooks = () => {
           <select
             value={statusFilter}
             onChange={(event) => setStatusFilter(event.target.value)}
-            className="rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 outline-none transition focus:border-emerald-400 focus:ring-4 focus:ring-emerald-500/10"
+           className="w-full md:w-56 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 outline-none transition focus:border-emerald-400 focus:ring-4 focus:ring-emerald-500/10"
           >
             <option value="all">All Statuses</option>
             <option value="borrowed">Borrowed</option>
@@ -347,7 +347,7 @@ const MyBooks = () => {
                         <button
                           type="button"
                           onClick={() => setSelectedRecord(record)}
-                          className="grid h-9 w-9 place-items-center rounded-lg bg-slate-100 text-slate-600 transition hover:bg-slate-200"
+                          className="grid h-10 w-10 place-items-center rounded-lg bg-slate-100 text-slate-600 transition hover:bg-slate-200"
                           aria-label="View book details"
                         >
                           <FiEye />
@@ -376,7 +376,7 @@ const MyBooks = () => {
 
       {selectedRecord && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/60 p-4 backdrop-blur-sm">
-          <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-[28px] bg-white shadow-2xl">
+          <div className="max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-[28px] bg-white shadow-2xl">
             <div className="flex items-center justify-between border-b border-slate-200 p-6">
               <div>
                 <span className="text-xs font-bold uppercase tracking-[0.2em] text-emerald-600">

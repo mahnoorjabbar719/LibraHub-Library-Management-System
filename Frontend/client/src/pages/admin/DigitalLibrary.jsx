@@ -177,7 +177,7 @@ const [editingBook, setEditingBook] = useState(null);
             Digital Collection
           </span>
 
-          <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-900">
+         <h1 className="mt-2 text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">
             Digital Library
           </h1>
 
@@ -189,7 +189,7 @@ const [editingBook, setEditingBook] = useState(null);
         <button
           type="button"
           onClick={() => setShowAddModal(true)}
-          className="flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 py-3 text-sm font-bold text-white shadow-lg shadow-emerald-600/20 transition hover:-translate-y-0.5 hover:bg-emerald-700"
+          className="flex w-full sm:w-auto items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 py-3 text-sm font-bold text-white shadow-lg shadow-emerald-600/20 transition hover:-translate-y-0.5 hover:bg-emerald-700"
         >
           <FiPlus className="text-lg" />
           Add Digital Book
@@ -197,7 +197,7 @@ const [editingBook, setEditingBook] = useState(null);
       </div>
 
       {/* Statistics */}
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className= "grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <article className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
           <div className="flex items-center gap-4">
             <div className="grid h-12 w-12 place-items-center rounded-2xl bg-emerald-100 text-xl text-emerald-600">
@@ -296,7 +296,7 @@ const [editingBook, setEditingBook] = useState(null);
         <select
           value={category}
           onChange={(event) => setCategory(event.target.value)}
-          className="rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-700 outline-none transition focus:border-emerald-400 focus:ring-4 focus:ring-emerald-500/10"
+          className="w-full lg:w-56 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-700 outline-none transition focus:border-emerald-400 focus:ring-4 focus:ring-emerald-500/10"
         >
           <option value="all">All Categories</option>
 
@@ -364,7 +364,7 @@ const [editingBook, setEditingBook] = useState(null);
         <div
           className={
             viewMode === "grid"
-              ? "grid gap-5 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4"
+              ? "grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4"
               : "grid gap-5 md:grid-cols-2"
           }
         >

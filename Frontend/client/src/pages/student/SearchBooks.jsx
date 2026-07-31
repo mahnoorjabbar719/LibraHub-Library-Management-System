@@ -209,7 +209,7 @@ const SearchBooks = () => {
           Library Collection
         </span>
 
-        <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-900">
+        <h1 className="mt-2 text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">
           Search Books
         </h1>
 
@@ -235,8 +235,7 @@ const SearchBooks = () => {
           <select
             value={category}
             onChange={(event) => setCategory(event.target.value)}
-            className="rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 outline-none transition focus:border-emerald-400 focus:ring-4 focus:ring-emerald-500/10"
-          >
+           className="w-full md:w-60 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 outline-none transition focus:border-emerald-400 focus:ring-4 focus:ring-emerald-500/10">
             <option value="all">All Categories</option>
 
             {categories.map((categoryName) => (
@@ -269,7 +268,7 @@ const SearchBooks = () => {
           </div>
         </div>
       ) : (
-        <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
           {filteredBooks.map((book) => {
             const availableCopies = Number(book.availableCopies || 0);
             const isAvailable = availableCopies > 0;
@@ -279,7 +278,7 @@ const SearchBooks = () => {
                 key={book._id}
                 className="group overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-xl"
               >
-               <div className="relative h-90 overflow-hidden bg-[radial-gradient(circle_at_top_left,rgba(16,185,129,0.22),transparent_40%),linear-gradient(135deg,#eefbf5,#e8f1ff)]">
+               <div className="relative aspect-[3/4] overflow-hidden bg-[radial-gradient(circle_at_top_left,rgba(16,185,129,0.22),transparent_40%),linear-gradient(135deg,#eefbf5,#e8f1ff)]">
   {book.coverImage ? (
     <img
       src={getBookCoverUrl(book.coverImage)}

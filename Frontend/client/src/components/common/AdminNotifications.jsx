@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 import {
   FiAlertTriangle,
   FiBookOpen,
@@ -91,8 +92,9 @@ const AdminNotifications = ({ onClose }) => {
     };
   };
 
-  return (
-    <div className="absolute right-0 top-14 z-50 w-[340px] overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl shadow-slate-900/10 sm:w-[390px]">
+  return createPortal(
+    <div className="fixed left-3 right-3 top-20 z-[9999] max-h-[calc(100dvh-6rem)] overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl shadow-slate-900/10 sm:left-auto sm:right-6 sm:w-[390px]">
+
       <div className="flex items-center justify-between border-b border-slate-200 px-5 py-4">
         <div>
           <h3 className="font-bold text-slate-900">Notifications</h3>
@@ -112,7 +114,7 @@ const AdminNotifications = ({ onClose }) => {
         </button>
       </div>
 
-      <div className="max-h-[420px] overflow-y-auto">
+      <div className="max-h-[calc(100dvh-12rem)] overflow-y-auto">
         {loading ? (
           <div className="grid min-h-48 place-items-center">
             <div className="h-9 w-9 animate-spin rounded-full border-4 border-slate-200 border-t-emerald-600" />
@@ -144,10 +146,10 @@ const AdminNotifications = ({ onClose }) => {
               return (
                 <div
                   key={notification.id}
-                  className="flex gap-3 px-5 py-4 transition hover:bg-slate-50"
+                  className="flex gap-3 px-4 py-4 transition hover:bg-slate-50"
                 >
                   <div
-                    className={`grid h-10 w-10 shrink-0 place-items-center rounded-xl ${classes}`}
+                    className={`grid h-11 w-11 shrink-0 place-items-center rounded-xl ${classes}`}
                   >
                     <Icon />
                   </div>
@@ -157,7 +159,7 @@ const AdminNotifications = ({ onClose }) => {
                       {notification.title}
                     </h4>
 
-                    <p className="mt-1 text-xs leading-5 text-slate-500">
+                    <p className="mt-1 text-xs leading-5 break-words text-slate-500">
                       {notification.message}
                     </p>
                   </div>
@@ -167,7 +169,8 @@ const AdminNotifications = ({ onClose }) => {
           </div>
         )}
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 
