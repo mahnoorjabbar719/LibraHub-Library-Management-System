@@ -1,11 +1,7 @@
-import axios from "axios";
-
-const digitalBookApi = axios.create({
-  baseURL: "http://localhost:5000/api/digital-books",
-});
+import API from "./api";
 
 export const getAllDigitalBooks = async () => {
-  const response = await digitalBookApi.get("/");
+  const response = await API.get("/digital-books");
   return response.data;
 };
 
@@ -13,19 +9,23 @@ export const addDigitalBook = async (
   formData,
   onUploadProgress
 ) => {
-  const response = await digitalBookApi.post(
-    "/add",
+  const response = await API.post(
+    "/digital-books/add",
     formData,
     {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+
       onUploadProgress: (progressEvent) => {
         if (!progressEvent.total) return;
 
-        const percent = Math.round(
+        const percentage = Math.round(
           (progressEvent.loaded * 100) /
             progressEvent.total
         );
 
-        onUploadProgress?.(percent);
+        onUploadProgress?.(percentage);
       },
     }
   );
@@ -33,18 +33,39 @@ export const addDigitalBook = async (
   return response.data;
 };
 
-export const updateDigitalBook = async (id, formData) => {
-  const response = await digitalBookApi.put(
-    `/update/${id}`,
-    formData
+export const updateDigitalBook = async (
+  id,
+  formData,
+  onUploadProgress
+) => {
+  const response = await API.put(
+    `/digital-books/update/${id}`,
+    formData,
+    {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+
+      onUploadProgress: (progressEvent) => {
+        if (!progressEvent.total) return;
+
+        const percentage = Math.round(
+          (progressEvent.loaded * 100) /
+            progressEvent.total
+        );
+
+        onUploadProgress?.(percentage);
+      },
+    }
   );
 
   return response.data;
 };
 
 export const deleteDigitalBook = async (id) => {
-  const response = await digitalBookApi.delete(`/delete/${id}`);
+  const response = await API.delete(
+    `/digital-books/delete/${id}`
+  );
+
   return response.data;
 };
-
-export default digitalBookApi;
