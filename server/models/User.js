@@ -6,6 +6,7 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
       trim: true,
+      minlength: 3,
     },
 
     email: {
@@ -22,27 +23,31 @@ const userSchema = new mongoose.Schema(
       minlength: 6,
     },
 
-    role: {
-      type: String,
-      enum: ["admin", "librarian", "student"],
-      default: "student",
-    },
-
     phone: {
       type: String,
-      default: "",
+      required: true,
+      trim: true,
     },
 
     registrationNo: {
       type: String,
-      default: "",
+      required: true,
+      unique: true,
+      uppercase: true,
+      trim: true,
     },
 
     department: {
       type: String,
-      default: "",
+      required: true,
+      trim: true,
     },
- 
+
+    role: {
+      type: String,
+      enum: ["student", "librarian", "admin"],
+      default: "student",
+    },
   },
   {
     timestamps: true,

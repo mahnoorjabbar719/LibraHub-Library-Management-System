@@ -9,79 +9,170 @@ import jwt from "jsonwebtoken";
 // =======================
 
 export const registerUser = async (req, res) => {
-  console.log(req.body);
   try {
     const {
       name,
       email,
       password,
-      role,
       phone,
       registrationNo,
       department,
     } = req.body;
 
-    // Check required fields
-    if (!name || !email || !password) {
+    const cleanedName = name?.trim().replace(/\s+/g, " ");
+    const cleanedEmail = email?.trim().toLowerCase();
+    const cleanedPhone = phone?.trim();
+    const cleanedRegistrationNo = registrationNo
+      ?.trim()
+      .toUpperCase();
+    const cleanedDepartment = department
+      ?.trim()
+      .replace(/\s+/g, " ");
+
+    // Required fields
+    if (
+      !cleanedName ||
+      !cleanedEmail ||
+      !password ||
+      !cleanedPhone ||
+      !cleanedRegistrationNo ||
+      !cleanedDepartment
+    ) {
       return res.status(400).json({
         success: false,
-        message: "Please fill all required fields",
+        message: "All fields are required.",
       });
     }
 
-    // Check if email already exists
-    const existingUser = await User.findOne({ email });
+    // Name validation
+    const nameRegex = /^[A-Za-z\s]+$/;
 
-    if (existingUser) {
+    if (
+      !nameRegex.test(cleanedName) ||
+      cleanedName.replace(/\s/g, "").length < 3
+    ) {
       return res.status(400).json({
         success: false,
-        message: "Email already exists",
+        message:
+          "Name must contain at least 3 letters and no numbers.",
       });
     }
 
-    // Hash password
-    const hashedPassword = await bcrypt.hash(password, 10);
+    // Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-    // Create new user
-    const user = await User.create({
-      name,
-      email,
-      password: hashedPassword,
-      role,
-      phone,
-      registrationNo,
-      department,
+    if (!emailRegex.test(cleanedEmail)) {
+      return res.status(400).json({
+        success: false,
+        message: "Please enter a valid email address.",
+      });
+    }
+
+    // Password validation
+    if (password.length < 6) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "Password must be at least 6 characters long.",
+      });
+    }
+
+    // Phone validation
+    const phoneRegex = /^03\d{9}$/;
+
+    if (!phoneRegex.test(cleanedPhone)) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "Phone number must be 11 digits and start with 03.",
+      });
+    }
+
+    // Registration number validation
+    const registrationRegex =
+      /^\d{4}-[A-Z]{2,5}-\d{3}$/;
+
+    if (
+      !registrationRegex.test(cleanedRegistrationNo)
+    ) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "Registration number must follow a format like 2026-CS-001.",
+      });
+    }
+
+    // Department validation
+    const departmentRegex = /^[A-Za-z\s&-]+$/;
+
+    if (
+      !departmentRegex.test(cleanedDepartment) ||
+      cleanedDepartment.length < 2
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "Please enter a valid department name.",
+      });
+    }
+
+    // Duplicate email
+    const existingEmail = await User.findOne({
+      email: cleanedEmail,
     });
 
-   const createdUser = await User.findById(user._id).select("-password");
+    if (existingEmail) {
+      return res.status(409).json({
+        success: false,
+        message: "An account with this email already exists.",
+      });
+    }
 
-// Send Welcome Email
-try {
-  await sendEmail({
-    to: createdUser.email,
-    subject: "🎉 Welcome to LibraHub!",
-    html: welcomeEmailTemplate(createdUser.name),
-    text: `Welcome ${createdUser.name}! Your LibraHub account has been created successfully.`,
-  });
+    // Duplicate registration number
+    const existingRegistration = await User.findOne({
+      registrationNo: cleanedRegistrationNo,
+    });
 
-  console.log("✅ Welcome email sent.");
-} catch (emailError) {
-  console.error("❌ Email sending failed:", emailError.message);
-}
+    if (existingRegistration) {
+      return res.status(409).json({
+        success: false,
+        message:
+          "This registration number is already registered.",
+      });
+    }
 
-// Response
-res.status(201).json({
-  success: true,
-  message: "User Registered Successfully",
-  user: createdUser,
-});
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const user = await User.create({
+      name: cleanedName,
+      email: cleanedEmail,
+      password: hashedPassword,
+      phone: cleanedPhone,
+      registrationNo: cleanedRegistrationNo,
+      department: cleanedDepartment,
+
+      // Public registration should always create a student
+      role: "student",
+    });
+
+    return res.status(201).json({
+      success: true,
+      message: "Account created successfully.",
+      user: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        phone: user.phone,
+        registrationNo: user.registrationNo,
+        department: user.department,
+        role: user.role,
+      },
+    });
   } catch (error) {
     console.error("REGISTER ERROR:", error);
-    // console.log(error);
 
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
-      message: "Server Error",
+      message: "Unable to create account.",
     });
   }
 };

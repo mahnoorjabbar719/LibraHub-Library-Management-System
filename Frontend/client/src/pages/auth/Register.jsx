@@ -33,31 +33,93 @@ const Register = () => {
   const handleChange = (event) => {
     const { name, value } = event.target;
 
+    let newValue = value;
+
+    // Full name: only letters and spaces
+    if (name === "name") {
+      newValue = value
+        .replace(/[^A-Za-z\s]/g, "")
+        .replace(/\s{2,}/g, " ");
+    }
+
+    // Phone number: only digits, maximum 11 digits
+    if (name === "phone") {
+      newValue = value.replace(/\D/g, "").slice(0, 11);
+    }
+
+    // Registration number: uppercase
+    if (name === "registrationNo") {
+      newValue = value.toUpperCase();
+    }
+
+    // Department: only letters, spaces, hyphens and ampersands
+    if (name === "department") {
+      newValue = value.replace(/[^A-Za-z\s&-]/g, "");
+    }
+
     setFormData((currentData) => ({
       ...currentData,
-      [name]: value,
+      [name]: newValue,
     }));
   };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
 
+    const cleanedData = {
+      ...formData,
+      name: formData.name.trim().replace(/\s+/g, " "),
+      email: formData.email.trim().toLowerCase(),
+      phone: formData.phone.trim(),
+      registrationNo: formData.registrationNo.trim().toUpperCase(),
+      department: formData.department.trim().replace(/\s+/g, " "),
+    };
+
     if (
-      !formData.name.trim() ||
-      !formData.email.trim() ||
-      !formData.password.trim()
+      !cleanedData.name ||
+      !cleanedData.email ||
+      !cleanedData.password ||
+      !cleanedData.phone ||
+      !cleanedData.registrationNo ||
+      !cleanedData.department
     ) {
       await Swal.fire({
         icon: "warning",
         title: "Missing information",
-        text: "Name, email, and password are required.",
+        text: "Please complete all required fields.",
         confirmButtonColor: "#059669",
       });
 
       return;
     }
 
-    if (formData.password.length < 6) {
+    const nameLetters = cleanedData.name.replace(/\s/g, "");
+
+    if (nameLetters.length < 3) {
+      await Swal.fire({
+        icon: "warning",
+        title: "Invalid name",
+        text: "Full name must contain at least 3 letters.",
+        confirmButtonColor: "#059669",
+      });
+
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!emailRegex.test(cleanedData.email)) {
+      await Swal.fire({
+        icon: "warning",
+        title: "Invalid email",
+        text: "Please enter a valid email address.",
+        confirmButtonColor: "#059669",
+      });
+
+      return;
+    }
+
+    if (cleanedData.password.length < 6) {
       await Swal.fire({
         icon: "warning",
         title: "Weak password",
@@ -68,10 +130,45 @@ const Register = () => {
       return;
     }
 
+    if (!/^03\d{9}$/.test(cleanedData.phone)) {
+      await Swal.fire({
+        icon: "warning",
+        title: "Invalid phone number",
+        text: "Enter an 11-digit Pakistani number starting with 03.",
+        confirmButtonColor: "#059669",
+      });
+
+      return;
+    }
+
+    const registrationRegex = /^\d{4}-[A-Z]{2,5}-\d{3}$/;
+
+    if (!registrationRegex.test(cleanedData.registrationNo)) {
+      await Swal.fire({
+        icon: "warning",
+        title: "Invalid registration number",
+        text: "Use a format like 2026-CS-001.",
+        confirmButtonColor: "#059669",
+      });
+
+      return;
+    }
+
+    if (cleanedData.department.length < 2) {
+      await Swal.fire({
+        icon: "warning",
+        title: "Invalid department",
+        text: "Please enter a valid department name.",
+        confirmButtonColor: "#059669",
+      });
+
+      return;
+    }
+
     try {
       setLoading(true);
 
-      await register(formData);
+      await register(cleanedData);
 
       await Swal.fire({
         icon: "success",
@@ -110,7 +207,10 @@ const Register = () => {
           </div>
 
           <div>
-            <h1 className="text-2xl font-bold text-white">LibraHub</h1>
+            <h1 className="text-2xl font-bold text-white">
+              LibraHub
+            </h1>
+
             <p className="mt-1 text-sm text-slate-400">
               Smart Library Management System
             </p>
@@ -130,8 +230,9 @@ const Register = () => {
           </h2>
 
           <p className="mt-6 text-base leading-8 text-slate-300">
-            Search books, track borrowing activity, return books, and manage
-            your personal library profile from one secure platform.
+            Search books, track borrowing activity, return books,
+            and manage your personal library profile from one
+            secure platform.
           </p>
         </div>
       </section>
@@ -147,6 +248,7 @@ const Register = () => {
               <h1 className="text-xl font-bold text-slate-900">
                 LibraHub
               </h1>
+
               <p className="text-xs text-slate-500">
                 Smart Library System
               </p>
@@ -159,130 +261,192 @@ const Register = () => {
                 New account
               </span>
 
-              <h2 className="mt-3 text-3xl font-bold tracking-tight text-slate-900">
+              <h2 className="mt-3 text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
                 Create your LibraHub account
               </h2>
 
               <p className="mt-3 text-sm leading-6 text-slate-500">
-                Fill in your details to register as a library student.
+                Fill in your details to register as a library
+                student.
               </p>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-5">
+            <form
+              onSubmit={handleSubmit}
+              className="space-y-5"
+              noValidate
+            >
               <div className="grid gap-5 md:grid-cols-2">
                 <div>
-                  <label className="mb-2 block text-sm font-semibold text-slate-700">
+                  <label
+                    htmlFor="name"
+                    className="mb-2 block text-sm font-semibold text-slate-700"
+                  >
                     Full Name
                   </label>
 
-                  <div className="flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 focus-within:border-emerald-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-emerald-500/10">
-                    <FiUser className="text-slate-400" />
+                  <div className="flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 transition focus-within:border-emerald-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-emerald-500/10">
+                    <FiUser className="shrink-0 text-slate-400" />
 
                     <input
+                      id="name"
                       type="text"
                       name="name"
                       value={formData.name}
                       onChange={handleChange}
                       placeholder="Enter full name"
-                      className="w-full bg-transparent py-3.5 text-sm outline-none"
+                      autoComplete="name"
+                      maxLength={50}
+                      required
+                      className="w-full bg-transparent py-3.5 text-sm text-slate-800 outline-none placeholder:text-slate-400"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="mb-2 block text-sm font-semibold text-slate-700">
+                  <label
+                    htmlFor="email"
+                    className="mb-2 block text-sm font-semibold text-slate-700"
+                  >
                     Email Address
                   </label>
 
-                  <div className="flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 focus-within:border-emerald-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-emerald-500/10">
-                    <FiMail className="text-slate-400" />
+                  <div className="flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 transition focus-within:border-emerald-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-emerald-500/10">
+                    <FiMail className="shrink-0 text-slate-400" />
 
                     <input
+                      id="email"
                       type="email"
                       name="email"
                       value={formData.email}
                       onChange={handleChange}
                       placeholder="Enter email"
-                      className="w-full bg-transparent py-3.5 text-sm outline-none"
+                      autoComplete="email"
+                      maxLength={100}
+                      required
+                      className="w-full bg-transparent py-3.5 text-sm text-slate-800 outline-none placeholder:text-slate-400"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="mb-2 block text-sm font-semibold text-slate-700">
+                  <label
+                    htmlFor="password"
+                    className="mb-2 block text-sm font-semibold text-slate-700"
+                  >
                     Password
                   </label>
 
-                  <div className="flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 focus-within:border-emerald-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-emerald-500/10">
-                    <FiLock className="text-slate-400" />
+                  <div className="flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 transition focus-within:border-emerald-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-emerald-500/10">
+                    <FiLock className="shrink-0 text-slate-400" />
 
                     <input
-                      type={showPassword ? "text" : "password"}
+                      id="password"
+                      type={
+                        showPassword ? "text" : "password"
+                      }
                       name="password"
                       value={formData.password}
                       onChange={handleChange}
                       placeholder="Minimum 6 characters"
-                      className="w-full bg-transparent py-3.5 text-sm outline-none"
+                      autoComplete="new-password"
+                      minLength={6}
+                      maxLength={100}
+                      required
+                      className="w-full bg-transparent py-3.5 text-sm text-slate-800 outline-none placeholder:text-slate-400"
                     />
 
                     <button
                       type="button"
                       onClick={() =>
-                        setShowPassword((currentValue) => !currentValue)
+                        setShowPassword(
+                          (currentValue) => !currentValue
+                        )
                       }
-                      className="text-lg text-slate-400"
+                      className="shrink-0 text-lg text-slate-400 transition hover:text-slate-700"
+                      aria-label={
+                        showPassword
+                          ? "Hide password"
+                          : "Show password"
+                      }
                     >
-                      {showPassword ? <FiEyeOff /> : <FiEye />}
+                      {showPassword ? (
+                        <FiEyeOff />
+                      ) : (
+                        <FiEye />
+                      )}
                     </button>
                   </div>
                 </div>
 
                 <div>
-                  <label className="mb-2 block text-sm font-semibold text-slate-700">
+                  <label
+                    htmlFor="phone"
+                    className="mb-2 block text-sm font-semibold text-slate-700"
+                  >
                     Phone Number
                   </label>
 
-                  <div className="flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 focus-within:border-emerald-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-emerald-500/10">
-                    <FiPhone className="text-slate-400" />
+                  <div className="flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 transition focus-within:border-emerald-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-emerald-500/10">
+                    <FiPhone className="shrink-0 text-slate-400" />
 
                     <input
-                      type="text"
+                      id="phone"
+                      type="tel"
                       name="phone"
                       value={formData.phone}
                       onChange={handleChange}
-                      placeholder="Enter phone number"
-                      className="w-full bg-transparent py-3.5 text-sm outline-none"
+                      placeholder="03XXXXXXXXX"
+                      autoComplete="tel"
+                      inputMode="numeric"
+                      maxLength={11}
+                      required
+                      className="w-full bg-transparent py-3.5 text-sm text-slate-800 outline-none placeholder:text-slate-400"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="mb-2 block text-sm font-semibold text-slate-700">
+                  <label
+                    htmlFor="registrationNo"
+                    className="mb-2 block text-sm font-semibold text-slate-700"
+                  >
                     Registration Number
                   </label>
 
                   <input
+                    id="registrationNo"
                     type="text"
                     name="registrationNo"
                     value={formData.registrationNo}
                     onChange={handleChange}
                     placeholder="2026-CS-001"
-                    className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3.5 text-sm outline-none focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-500/10"
+                    autoComplete="off"
+                    maxLength={20}
+                    required
+                    className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3.5 text-sm uppercase text-slate-800 outline-none transition placeholder:normal-case placeholder:text-slate-400 focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-500/10"
                   />
                 </div>
 
                 <div>
-                  <label className="mb-2 block text-sm font-semibold text-slate-700">
+                  <label
+                    htmlFor="department"
+                    className="mb-2 block text-sm font-semibold text-slate-700"
+                  >
                     Department
                   </label>
 
                   <input
+                    id="department"
                     type="text"
                     name="department"
                     value={formData.department}
                     onChange={handleChange}
                     placeholder="Computer Science"
-                    className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3.5 text-sm outline-none focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-500/10"
+                    autoComplete="organization"
+                    maxLength={60}
+                    required
+                    className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3.5 text-sm text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-500/10"
                   />
                 </div>
               </div>
@@ -293,7 +457,9 @@ const Register = () => {
                 className="group flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-500 px-5 py-3.5 text-sm font-bold text-white shadow-lg shadow-emerald-600/20 transition hover:-translate-y-0.5 hover:shadow-xl disabled:cursor-not-allowed disabled:opacity-70"
               >
                 <span>
-                  {loading ? "Creating Account..." : "Create Account"}
+                  {loading
+                    ? "Creating Account..."
+                    : "Create Account"}
                 </span>
 
                 {!loading && (
@@ -306,7 +472,7 @@ const Register = () => {
               Already have an account?{" "}
               <Link
                 to="/login"
-                className="font-bold text-emerald-600 hover:text-emerald-700"
+                className="font-bold text-emerald-600 transition hover:text-emerald-700"
               >
                 Sign in
               </Link>
